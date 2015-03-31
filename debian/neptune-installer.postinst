@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if [ -d /live/image ]; then
+  for dir in $(find /home/*/Desktop -maxdepth 0 -type d); do cp /etc/skel/Desktop/neptune-installer.desktop $dir ; done
+fi
+

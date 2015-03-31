@@ -1,0 +1,20 @@
+[Desktop Entry]
+Categories=System;
+Comment[de]=Install the operating system to disk
+Comment=Install the operating system to disk
+Exec=kdesudo /usr/bin/neptune-installer
+GenericName[de]=Erweiterter Installer
+GenericName=Advanced Installer
+Icon=advanced-installer
+MimeType=
+Name[de]=Erweiterter Installer
+Name=Advanced Installer
+Path=
+StartupNotify=true
+Terminal=true
+TerminalOptions=
+Type=Application
+X-DBUS-ServiceName=
+X-DBUS-StartupType=
+X-KDE-SubstituteUID=false
+X-KDE-Username=

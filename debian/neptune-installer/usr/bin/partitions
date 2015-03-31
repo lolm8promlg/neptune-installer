@@ -1,0 +1,357 @@
+#!/bin/bash
+
+# Synopsis: strip_live_media
+#
+# This function strips the live media (usbstick) from a list of devices
+# Output example:
+#   /dev/sda
+function strip_live_media()
+{
+	grep -ve '^$' $(awk '{if(($2=="/live/image" || $2=="/lib/live/mount/medium") && $3=="iso9660"){gsub(/[0-9]*$/,"",$1); print "-e ^"$1; exit 0;}}' < /proc/mounts)
+}
+
+# Synopsis: list_all_disks
+#
+# This function lists all disks
+# Output example:
+#   /dev/sda
+#   /dev/sdb
+function list_all_disks()
+{
+    (
+	awk -vli="$(awk '{if($2=="sd"||$2=="md") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if(($1==list[i]&&$2%16==0)||($1==list[i]&&$2==126)) print "/dev/"$4;}' /proc/partitions
+    ) | strip_live_media
+}
+
+# Synopsis: send_list_of_disks
+#
+# This script sends a list of all disks with size-details to the frontend.
+# Output example:
+#   <installer data> list_of_disks
+#   /dev/sda 10001908224
+#   /dev/sdb 64023257088
+function send_list_of_disks()
+{
+	send data list_of_disks
+	list_all_disks | partitions_size_details
+}
+
+# Synopsis: list_all_partitions
+#
+# This function lists all partitions from all disks
+# Output example:
+#   /dev/sda1
+#   /dev/sda2
+#   /dev/sdb5
+#   /dev/md0
+function list_all_partitions()
+{
+    (
+	awk -vli="$(awk '{if($2=="sd") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if($1==list[i]&&$2%16!=0) print "/dev/"$4;}' /proc/partitions
+	awk -vli="$(awk '{if($2=="md") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if($1==list[i]||$1==list[i]+250) print "/dev/"$4;}' /proc/partitions
+	list_dm_partitions
+    ) | strip_live_media
+}
+
+# Synopsis: list_dm_partitions
+#
+# This function lists all device-mapper partitions
+# Output example:
+#   /dev/mapper/volg-home
+#   /dev/mapper/cryptoroot
+function list_dm_partitions()
+{
+	ls /dev/mapper/* 2>/dev/null | fmt -w1 | grep -v "/control$"
+}
+
+# Synopsis: (e.g.) list_all_partitions | partitions_usage_details
+#
+# This function lists usage details for a list of partitions from STDIN
+# Output example:
+#   /dev/sda1 filesystem reiserfs
+#   /dev/sda2 filesystem ext3
+#   /dev/sda3 other swap
+function partitions_usage_details()
+{
+        while read part x
+	do
+		[ -e "$part" ] || continue
+                ID_FS_USAGE="$(/sbin/blkid -p -s USAGE -o value "$part")"
+                [ "$ID_FS_USAGE" ] || continue
+                ID_FS_TYPE="$(/sbin/blkid -p -s TYPE -o value "$part")"
+		echo "$part $ID_FS_USAGE $ID_FS_TYPE"
+        done
+}
+
+# Synopsis: (e.g.) list_all_partitions | partitions_size_details
+#
+# This function lists size details for a list of partitions from STDIN
+# Output example:
+#   /dev/sda 64023257088 
+#   /dev/sda1 10001908224
+function partitions_size_details()
+{
+        while read part x
+	do
+		[ -e "$part" ] || continue
+		echo "$part $(blockdev --getsize64 "$part") $x"
+        done
+}
+
+# Synopsis: list_partitions [-type <filesystem>] [-disk <disk>] [-usage <usage>]
+#
+# This function lists all partitions that match all the given parameters
+# Output example:
+#   /dev/sda1
+#   /dev/sda2
+#   /dev/sdb5
+function list_partitions()
+{
+        unset required_type required_disk;
+        required_usage="filesystem"
+
+        while [ "$1" ]
+        do
+                case $1 in
+                -type)
+                        required_type="$2";
+                        shift
+                        ;;
+                -disk)
+                        required_disk="$2";
+                        shift
+                        ;;
+                -usage)
+                        required_usage="$2";
+                        shift
+                        ;;
+                esac
+                shift
+        done
+
+        while IFS=" " read part usage type
+        do
+                if [ "$usage" = "$required_usage" ]; then
+                        [ "$required_type" -a "$required_type" != "$(get_filesystem_type $part)" ] && continue
+                        [ "$required_disk" ] && ! echo "$part" | grep -q "^$required_disk" && continue
+                        echo $part
+                fi
+        done < <(list_all_partitions | partitions_usage_details)
+}
+
+
+# Synopsis: list_linux_partitions
+#
+# This function lists all partitions from the disks (by list_all_disks) which have partition Id 0x83 (= Linux) and Linux Filesystem
+# Output example:
+#   /dev/sda4
+#   /dev/sdb1
+#   /dev/mapper/xyz
+function list_linux_partitions()
+{
+    (
+    #for disk in $(list_all_disks)
+    #do
+    #    LC_ALL=C sfdisk -l "$disk" 2>/dev/null | sed 's/[*+]//g;' | gawk '/^\/dev/{if($6 == 83){print $1}}'
+    #done
+    for part in $(list_all_partitions)
+    do
+        case "$(blkid -p -s PART_ENTRY_TYPE -o value "$part")" in
+            0x83|ebd0a0a2-b9e5-4433-87c0-68b6b72699c7|0fc63daf-8483-4772-8e79-3d69d8477de4)
+                [ "$(get_filesystem_type $part)" = "Linux" ] && echo "$part"
+                ;;
+        esac
+    done
+    for part in $(list_dm_partitions) $(awk -vli="$(awk '{if($2=="md") print $1;}' /proc/devices)" 'BEGIN{m=split(li,list," ")}{for(i=1;i<=m;i++) if(($1==list[i]&&$2%16==0)||($1==list[i]&&$2==126)) print "/dev/"$4;}' /proc/partitions)
+    do
+        [ "$(get_filesystem_type "$part")" = "Linux" ] && echo "$part"
+    done
+    ) | sort -u
+}
+
+# Synopsis: list_efi_partitions
+#
+# This function lists all partitions from the disks (by list_all_disks) which have partition Id 0xef (= EFI) and DOS filesystem
+# Output example:
+#   /dev/sda1
+#   /dev/sdb1
+function list_efi_partitions()
+{
+    for part in $(list_all_partitions | strip_live_media)
+    do
+        case "$(blkid -p -s PART_ENTRY_TYPE -o value "$part")" in
+            0xef|c12a7328-f81f-11d2-ba4b-00a0c93ec93b)
+                [ "$(get_filesystem_type $part)" = "DOS" ] && echo "$part"
+                ;;
+            *)
+                disk="$(get_disk "$part")"
+                if [ "$(get_filesystem_type "$part")" = "DOS" ]; then
+                    case "$(blkid -p -s PTTYPE -o value "$disk")" in
+                    gpt)
+                        echo "$part"
+                        ;;
+                    dos)
+                        # only primary MSDOS partitions can be EFI partitions
+                        partnr="${part/$disk}"
+                        partnr="${partnr//[^0-9]}"
+                        [ -n "$partnr" -a "$partnr" -ge 1 -a "$partnr" -le 4 ] && echo "$part"
+                        ;;
+                    esac
+                fi
+                ;;
+        esac
+    done
+}
+
+# Synopsis: list_swap_partitions
+#
+# This function lists all partitions or lvm from the disks (by list_all_disks) which have partition Id 0x82 (= Linux swap)
+# Output example:
+#   /dev/sda4
+#   /dev/sdb1
+#   /dev/mapper/xyz
+function list_swap_partitions()
+{
+    (
+    for disk in $(list_all_disks)
+    do
+        LC_ALL=C sfdisk -l "$disk" 2>/dev/null | sed 's/[*+]//g;' | gawk '/^\/dev/{if($6 == 82){print $1}}'
+    done
+    for part in $(list_all_partitions)
+    do
+        case "$(blkid -p -s PART_ENTRY_TYPE -o value "$part")" in
+            0x82|0657fd6d-a4ab-43c4-84e5-0933c84b4f4f)
+                echo "$part"
+                ;;
+        esac
+    done
+    for part in $(list_dm_partitions)
+    do
+        [ "$(get_filesystem_type "$part")" = "Swap" ] && echo "$part"
+    done
+    ) | sort -u
+}
+
+# Synopsis: get_disk <partition>
+#
+# This function returns the disk containing the given partition
+# Output example:
+#   /dev/sda
+function get_disk()
+{
+	path="$(udevadm info -q path -n "$1")"
+	while [ "$path" ]
+	do
+		udevadm info -q env -p "$path" | grep -q "^DEVTYPE=disk$" && break
+		path="$(dirname "$path")"
+	done
+	[ "$path" ] && udevadm info --root -q name -p "$path" && return 0
+	return 1
+}
+
+# Synopsis: is_removeable <disk/partition>
+#
+# This function checks if a disk or partition is removeable (returncode 0) or not (returncode 1)
+function is_removeable()
+{
+        DEV="$(get_disk "$1")"
+        REM=$(cat /sys/block/${DEV#/dev/}/removable 2>/dev/null)
+        case $(readlink -f /sys/block/${DEV#/dev}) in *usb*) REM=1; esac
+        [ "$REM" = "1" ] && return 0 || return 1
+}
+
+# Synopsis: list_possible_root_partitions
+#
+# This script lists all possible root-partitions.
+#   * all linux-partitions or lvm which have a linux-filesystem
+# Output example:
+#   /dev/sda4
+#   /dev/sdb1
+#   /dev/mapper/xyz
+function list_possible_root_partitions()
+{
+	( list_linux_partitions; list_partitions -type Linux ) | sort | uniq -d
+}
+
+# Synopsis: send_possible_root_partitions
+#
+# This script sends a list of all possible root-partitions with size- and usage-details to the frontend.
+# Output example:
+#   <installer data> possible_root_partitions
+#   /dev/sda4 10001908224 filesystem ext3
+#   /dev/sdb1 64023257088 
+function send_possible_root_partitions()
+{
+	send data possible_root_partitions
+	list_possible_root_partitions | partitions_usage_details | partitions_size_details
+}
+
+# Synopsis: send_possible_root_filesystems
+#
+# This script sends a list of all possible filesystems to format the root-partition with to the frontend.
+# Output example:
+#   <installer data> possible_root_filesystems
+#   ext4
+#   ext3
+#   reiserfs
+function send_possible_root_filesystems()
+{
+	send data possible_root_filesystems
+	for fs in ext4 ext3 reiserfs btrfs btrfs-lzo xfs jfs; do echo $fs; done
+}
+
+# Synopsis: get_filesystem <device>
+#
+# This function returns the filesystem on the supplied device.
+# Returned filesystem could be:
+#   ext4, ext3, ext2, reiserfs, xfs, minix, hfs, efs, reiser4,
+#   jfs, iso9660, vfat, ntfs, swap, oracleasm, jbd, gfs,
+#   gfs2, vxfs, romfs, bfs, cramfs, qnx4, udf, ufs, hpfs,
+#   sysv, swsuspend, ocfs, ocfs2
+# Output example:
+#   ext4
+function get_filesystem()
+{
+        [ -x /sbin/blkid ] && /sbin/blkid -s TYPE -o value "$1"
+}
+
+# Synopsis: get_filesystem_type [-fs <filesystem>]|<device>
+#
+# This function returns the type of the filesystem on the supplied device (or filesystem).
+# Returned type could be:
+#   Linux, CD-ROM, Windows, Swap, (not recognized type -> filesystem)
+# Output example:
+#   Linux
+function get_filesystem_type()
+{
+        if [ "$1" = "-fs" ]; then
+                filesystem="$2"
+        else
+                filesystem="$(get_filesystem "$1")"
+        fi
+        case $filesystem in
+        ext4|ext3|ext2|reiserfs|xfs|minix|hfs|efs|reiser4|jfs|btrfs*) echo Linux;;
+        iso9660) echo CD-ROM;;
+        vfat) echo DOS;;
+        ntfs) echo Windows;;
+        swap) echo Swap;;
+        *) echo "$filesystem";;
+        esac
+        # Other (not recognized) Filesystems:
+        # oracleasm, jbd, gfs, gfs2, vxfs, romfs, bfs, cramfs,
+        # qnx4, udf, ufs, hpfs, sysv, swsuspend, ocfs, ocfs2
+}
+
+# Synopsis: get_partition_uuid <device>
+#
+# This function returns the UUID of the filesystem on the supplied device.
+# Output example:
+#   27abd981-a39e-469d-a29b-0862604f29ee
+function get_partition_uuid()
+{
+        if [ -x /sbin/blkid ]; then
+                /sbin/blkid -s UUID -o value "$1"
+        fi
+}
+
+$*

@@ -1,0 +1,10 @@
+Package: neptune-installer
+Version: 2.5.0
+Architecture: all
+Maintainer: Leszek Lesner <leszek@zevenos.com>
+Installed-Size: 760
+Depends: gparted, e2fsprogs, debootstrap, rsync, util-linux, language-selector, dialog, parted, f2fs-tools, file, btrfs-tools
+Section: kde
+Priority: optional
+Description: Neptune Installer
+ This package contains the neptune installer that will install the system to harddrive.

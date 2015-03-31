@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=Install Neptune
+Comment=Install Neptune
+Exec=kdesudo "/usr/bin/neptune-installer"
+Icon=/usr/share/pixmaps/debian-logo.png
+Terminal=false
+Type=Application
+Categories=Application;
+GenericName[de_DE]=Installiere Neptune

@@ -1,0 +1,312 @@
+#!/bin/bash
+#
+# Neptune Installer 0.80
+#
+# A small Installerscript to Install Neptune. Released under Beerware (C) (R)
+#
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42):
+# Leszek Lesner wrote this file. As long as you retain this notice you
+# can do whatever you want with this stuff. If we meet some day, and you think
+# this stuff is worth it, you can buy me a beer in return.
+# ----------------------------------------------------------------------------
+#
+# unoffical german translation:
+#
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42):
+# Leszek Lesner schrieb diese Datei. Solange Sie diesen Vermerk nicht entfernen,
+# können Sie mit der Datei machen, was Sie möchten. Wenn wir uns eines Tages treffen
+# und Sie denken, die Datei ist es wert, können Sie mir dafür ein Bier ausgeben.
+# ----------------------------------------------------------------------------
+#
+# by Leszek Lesner <leszek@zevenos.com>
+
+### Check if root started this script
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+
+### Check if Xorg is running
+xorg=`ps -A | grep Xorg | wc -l`
+if [ $xorg == 1 ]; then 
+  msgbox=gdialog 
+else
+  msgbox=dialog
+fi
+
+### Ask for language
+$msgbox --backtitle "Choose the Language" --title " Main Menu - Language " --cancel-label "Cancel" --menu "Navigation by arrow buttons [UP] [DOWN], for activation press [ENTER]" 17 60 10 ger "German/Deutsch" eng "English" Beenden "Quit the menu" 2>tmp.lang
+opt=${?}
+    if [ $opt != 0 ]; then rm tmp.*; exit 1; fi
+menuitem=`cat tmp.lang`
+echo "menu=$menuitem"
+case $menuitem in
+        ger) language=de;;
+        eng) language=en;;
+        Beenden) rm tmp.*; exit;;
+esac
+opt2=${?}
+    if [ $opt2 != 0 ]; then rm tmp.*; exit 1; fi
+  
+
+# Load language specific messages
+welcome=`awk 'NR==1' /usr/share/neptune-installer/$language.messages`
+askroot=`awk 'NR==2' /usr/share/neptune-installer/$language.messages`
+askroot2=`awk 'NR==3' /usr/share/neptune-installer/$language.messages`  
+wrongpw=`awk 'NR==4' /usr/share/neptune-installer/$language.messages`
+userask=`awk 'NR==5' /usr/share/neptune-installer/$language.messages`
+usercreatemsg=`awk 'NR==6' /usr/share/neptune-installer/$language.messages`
+userpwask=`awk 'NR==7' /usr/share/neptune-installer/$language.messages`
+userpwask2=`awk 'NR==8' /usr/share/neptune-installer/$language.messages`
+mntcreate=`awk 'NR==9' /usr/share/neptune-installer/$language.messages`
+partitionmanager=`awk 'NR==10' /usr/share/neptune-installer/$language.messages`
+cancel=`awk 'NR==11' /usr/share/neptune-installer/$language.messages`
+menucontrols=`awk 'NR==12' /usr/share/neptune-installer/$language.messages`
+format=`awk 'NR==13' /usr/share/neptune-installer/$language.messages`
+endpart=`awk 'NR==14' /usr/share/neptune-installer/$language.messages`
+cfdiskpart=`awk 'NR==15' /usr/share/neptune-installer/$language.messages`
+mkfspart=`awk 'NR==16' /usr/share/neptune-installer/$language.messages`
+mkfsformat=`awk 'NR==17' /usr/share/neptune-installer/$language.messages`
+targetpart=`awk 'NR==18' /usr/share/neptune-installer/$language.messages`
+mnttarget=`awk 'NR==19' /usr/share/neptune-installer/$language.messages`
+homeask=`awk 'NR==20' /usr/share/neptune-installer/$language.messages`
+homepart=`awk 'NR==21' /usr/share/neptune-installer/$language.messages`
+homeskip=`awk 'NR==22' /usr/share/neptune-installer/$language.messages`
+grubask=`awk 'NR==23' /usr/share/neptune-installer/$language.messages`
+grubansweryes=`awk 'NR==24' /usr/share/neptune-installer/$language.messages`
+grubanswerno=`awk 'NR==25' /usr/share/neptune-installer/$language.messages`
+installmsg=`awk 'NR==26' /usr/share/neptune-installer/$language.messages`
+configuremsg=`awk 'NR==27' /usr/share/neptune-installer/$language.messages`
+installgrubmsg=`awk 'NR==28' /usr/share/neptune-installer/$language.messages`
+grubpartask=`awk 'NR==29' /usr/share/neptune-installer/$language.messages`
+fstabmsg=`awk 'NR==30' /usr/share/neptune-installer/$language.messages`
+sephomemsg=`awk 'NR==31' /usr/share/neptune-installer/$language.messages`
+configurehomemsg=`awk 'NR==32' /usr/share/neptune-installer/$language.messages`
+userskipmsg=`awk 'NR==33' /usr/share/neptune-installer/$language.messages`
+initramfsmsg=`awk 'NR==34' /usr/share/neptune-installer/$language.messages`
+configureusermsg=`awk 'NR==35' /usr/share/neptune-installer/$language.messages`
+movehomemsg=`awk 'NR==36' /usr/share/neptune-installer/$language.messages`
+installendmsg=`awk 'NR==37' /usr/share/neptune-installer/$language.messages`
+lvmpvcreate=`awk 'NR==38' /usr/share/neptune-installer/$language.messages`
+lvmpvformat=`awk 'NR==39' /usr/share/neptune-installer/$language.messages`
+lvmvgcreate=`awk 'NR==40' /usr/share/neptune-installer/$language.messages`
+lvmvgformat=`awk 'NR==41' /usr/share/neptune-installer/$language.messages`
+lvmlvcreate=`awk 'NR==42' /usr/share/neptune-installer/$language.messages`
+lvmlvsize=`awk 'NR==43' /usr/share/neptune-installer/$language.messages`
+lvmlvformat=`awk 'NR==44' /usr/share/neptune-installer/$language.messages`
+lvmlvask=`awk 'NR==45' /usr/share/neptune-installer/$language.messages`
+lvmask=`awk 'NR==46' /usr/share/neptune-installer/$language.messages`
+
+if [ $LANG = "de_DE.UTF-8" ]; then
+	persask="Wollen Sie eine Persistenz Partition anlegen zum Speichern von Änderungen?"
+	perspart="Bitte geben Sie die Persistenzpartition (z.B. /dev/sda2 für LVM /dev/vgname/lvname) an"
+        persskip="--- Fortfahren ohne Persistenzpartition ---"
+else
+	persask="Do you want to create a persistent partition zu save changes?"
+	perspart="Please, enter the persistent partition (for instance /dev/sda2 for LVM /dev/vgname/lvname)"
+        persskip="--- Continue without any persistent partition ---"
+fi
+
+# Functions
+lvm_create(){
+while true; do
+  $msgbox --inputbox "$lvmpvcreate" 0 0 2>tmp.lvmpv;
+  clear; echo "$lvmpvformat"; 
+  export LVMPVDEV=`cat tmp.lvmpv`; 
+  umount -fl $LVMPVDEV
+  pvcreate $LVMPVDEV;   # Create PV here
+  opt=${?}
+  if [ $opt != 0 ]; then rm tmp.*; echo "Error Creating LVM Physical Volume"; break; fi
+  $msgbox --inputbox "$lvmvgcreate" 0 0 2>tmp.lvmvg;
+  export LVMVGNAME=`cat tmp.lvmvg`;
+  echo "$lvmvgformat";  
+  vgcreate $LVMVGNAME $LVMPVDEV;
+  opt=${?}
+  if [ $opt != 0 ]; then rm tmp.*; echo "Error Creating LVM Volume Group"; break; fi
+  while true; do
+    $msgbox --inputbox "$lvmlvcreate" 0 0 2>tmp.lvmlvname;
+    export LVMLVNAME=`cat tmp.lvmlvname`;
+    $msgbox --inputbox "$lvmlvsize $LVMLVNAME" 0 0 2>tmp.lvmlvsize;
+    export LVMLVSIZE=`cat tmp.lvmlvsize`;
+    service udev restart
+    echo "$lvmlvformat"
+    echo "lvcreate -n $LVMLVNAME -L $LVMLVSIZE $LVMVGNAME"
+    lvcreate -n $LVMLVNAME -L $LVMLVSIZE $LVMVGNAME
+    opt=${?}
+    if [ $opt != 0 ]; then rm tmp.*; echo "Error Creating LVM Logical Volume"; break; fi
+    $msgbox --yesno "$lvmlvask" 0 0;
+    opt=${?}
+    if [ $opt != 0 ]; then rm tmp.*; break; fi
+  done # LV Create
+  $msgbox --yesno "$lvmask" 0 0;
+  opt=${?}
+  if [ $opt != 0 ]; then rm tmp.*; break; fi
+done # LVM Creation
+}
+
+### Create a mountpoint for our target partition ###
+echo "";
+echo $mntcreate 
+mkdir -p /hdinstall ;
+
+while true; do
+### Ask the user to choose a partition manager ###
+$msgbox --backtitle "$partitionmanager" --title " Main Menu - Partitionsmanager " --cancel-label "$cancel" --menu "$menucontrols" 17 60 10 cfdisk "CFdisk (Terminal)" gparted "Gparted (GUI)" parted "Parted (Terminal)" mkfs "$format" lvm "LVM" Beenden "$endpart" 2>tmp.part
+opt=${?}
+    if [ $opt != 0 ]; then rm tmp.*; exit 1; fi
+menuitem=`cat tmp.part`
+echo "menu=$menuitem"
+case $menuitem in
+        cfdisk) cfdisk;echo "$cfdiskpart" ;;
+        parted) parted;;
+        mkfs) $msgbox --inputbox "$mkfspart" 0 0 2> tmp.format; clear; echo "$mkfsformat"; export FORMAT=`cat tmp.format`; mkfs.ext4 $FORMAT;;
+	lvm) lvm_create;echo "$cfdiskpart" ;;
+        gparted) gparted;;
+        Beenden) rm tmp.*; break;;
+esac
+opt2=${?}
+    if [ $opt2 != 0 ]; then rm tmp.*; exit 1; fi
+done
+
+### Get partition and mount it under hdinstall ###
+$msgbox --inputbox "$targetpart" 0 0 2> tmp.hd
+clear ;
+export TARGET=`cat tmp.hd` ;
+echo "" ;
+echo "$mnttarget" ;
+mount $TARGET /hdinstall ;
+EXT4check=$(mount | grep $TARGET | cut -d " " -f 5)
+### Asking for persistency partition ###
+$msgbox --yesno "$persask" 0 0 ;
+HEIM=${?} ;
+if [ $HEIM = 0 ]; then
+    	$msgbox --inputbox "$perspart" 0 0 2> tmp.home ;
+	HEIMORT=`cat tmp.home` ;
+else
+	clear ;
+	echo "" ;
+	echo "$persskip" ;
+fi
+
+### Asking if GRUB should be installed to MBR or root  ###
+$msgbox --yesno "$grubask" 0 0 ;
+GRUBMBR=${?} 
+if [ $GRUBMBR = 0 ]; then
+       clear ;		
+       echo "$grubansweryes" ;
+else
+        clear ;
+	GRUBMBR=no
+        echo "$grubanswerno" ;
+fi
+
+
+### Begin copying files ###
+#orig_size="1740"
+#dest_size_before=$(df -m $TARGET | cut -b32- | awk '/\/hdinstall/{used+=$1} END{print used}')
+#dest_size_diff=0
+echo "" ;
+echo "$installmsg" ;
+if [ "$msgbox" == "gdialog" ]; then
+rsync -av --progress /live/image/ /hdinstall --exclude=/{hdinstall,sys,proc,media,home,rofs,cdrom,mnt,doc,isolinux}/ | awk -f /usr/bin/rsync.awk | cut -c -35 | zenity --progress --width=350 --title "$installmsg" --text="Copying..." --percentage=0 --auto-close;
+else
+rsync -av --progress /live/image/ /hdinstall --exclude=/{hdinstall,sys,proc,media,home,rofs,cdrom,mnt,doc,isolinux}/ ;
+fi
+# rsync=$!	Progressbar seems not to work this way
+# old_percent=0
+# 	while ps --pid $rsync &>/dev/null
+# 	do
+# 		dest_size=$(df -m $TARGET | cut -b32- | awk '/\/hdinstall/{used+=$1} END{print used}')
+# 		dest_size_diff=$(( $dest_size - $dest_size_before ))
+# 		percent=$((( 100 * $dest_size_diff ) / $orig_size ))
+# 		if [ "$percent" != "$old_percent" ]; then
+# 			echo "$percent %" 
+# 			old_percent="$percent"
+# 		fi
+# 		sleep 5
+# 	done
+
+echo "" ;
+echo "$installgrubmsg" ;
+
+### Progressbar kde way with kdialog ;) 
+if [ "$msgbox" == "gdialog" ]; then
+    dcopRef=`kdialog --progressbar "Configuring Grub..." 4` ;
+    export dcopRef
+fi 
+
+### Install Grub and chroot into system ###
+echo "Installing debootstrap system..."
+mkdir -p /boot/grub ;
+mkdir -p /hdinstall/boot/grub ;
+mkdir -p /hdinstall/bin
+sed -i -e "s/^GRUB_CMDLINE_LINUX_DEFAULT=.*\$/GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash boot=live union=aufs swapon noprompt\"/" /etc/default/grub ;
+mkdir -p /hdinstall/etc/default
+cp /etc/default/grub /hdinstall/etc/default/grub
+debootstrap wheezy /hdinstall http://ftp.de.debian.org/debian
+chroot /hdinstall apt-get install -y --force-yes grub2 grub2-common os-prober initramfs-tools
+cp /hdinstall/live/vmlinuz2 /hdinstall/boot/
+cp /hdinstall/live/initrd2.img /hdinstall/boot/
+cp /etc/lsb-release /hdinstall/etc/lsb-release
+cp /etc/apt/sources.list.d/* /hdinstall/etc/apt/sources.list.d/
+if [ $GRUBMBR = 0 ]; then
+	grub-install --recheck --no-floppy --root-directory=/hdinstall /dev/sda
+else
+    	$msgbox --inputbox "$grubpartask" 0 0 2> tmp.grubpart
+	clear ;
+	export TARGET2=`cat tmp.grubpart` ;
+	grub-install --recheck --no-floppy --root-directory=/hdinstall $TARGET2
+fi
+
+   
+
+### Binding /proc, /dev, /sys to chroot ###
+mkdir -p /hdinstall/proc
+mkdir -p /hdinstall/dev
+mkdir -p /hdinstall/sys
+mount --bind /proc /hdinstall/proc ;
+mount --bind /dev /hdinstall/dev ;
+mount --bind /sys /hdinstall/sys;
+if [ "$msgbox" == "gdialog" ]; then
+    qdbus $dcopRef org.freedesktop.DBus.Properties.Set org.kde.kdialog.ProgressDialog value 1
+fi
+### Search for installed systems and update-grub ###
+#/usr/bin/os-prober ; 
+chroot /hdinstall apt-get update
+chroot /hdinstall apt-get install -y --force-yes linux-image-`uname -r`
+mv /hdinstall/boot/initrd2.img /hdinstall/boot/initrd.img-`uname -r`
+chroot /hdinstall /usr/sbin/update-grub ;
+
+if [ "$HEIM" = "j" ]; then
+	echo "" ;
+        echo "Enable persistency..."
+        sed -i -e "s/^GRUB_CMDLINE_LINUX_DEFAULT=.*\$/GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash boot=live union=aufs swapon noprompt\"/" /etc/default/grub ;
+        cp /etc/default/grub /hdinstall/etc/default/grub
+        if [ $GRUBMBR = 0 ]; then
+        	grub-install --recheck --no-floppy --root-directory=/hdinstall /dev/sda
+	else
+        	$msgbox --inputbox "$grubpartask" 0 0 2> tmp.grubpart
+        	clear ;
+        	export TARGET2=`cat tmp.grubpart` ;
+        	grub-install --recheck --no-floppy --root-directory=/hdinstall $TARGET2
+	fi
+        ### Search for installed systems and update-grub ###
+	/usr/bin/os-prober ;
+	chroot /hdinstall /usr/sbin/update-grub ;
+fi
+
+### Final Cleanup ###
+
+umount /hdinstall/proc ;
+umount /hdinstall/dev ;
+umount /hdinstall/sys ;
+
+if [ "$msgbox" == "gdialog" ]; then
+	qdbus $dcopRef close
+fi
+
+
+### End Message ###
+$msgbox --msgbox "$installendmsg" 0 0

@@ -1,0 +1,151 @@
+neptune-installer (2.5.0) unstable; urgency=low
+
+  * Code cleanup 
+  * create_fstab now uses new partitions script
+  * distinguish mount options in fstab between root and home
+  * Fixed when formatting in btrfs show btrfs in summary page
+
+ -- Leszek Lesner <leszek@zevenos.com>  Sun, 28 Sep 2014 12:45:20 +0200
+
+neptune-installer (2.4.9) unstable; urgency=low
+
+  * Set kdesu super-user-command to su if sudo is disabled
+
+ -- Leszek Lesner <leszek@zevenos.com>  Wed, 24 Sep 2014 18:41:37 +0200
+
+neptune-installer (2.4.8) unstable; urgency=low
+
+  * Use update-alternatives to set correct kdesu path
+
+ -- Leszek Lesner <leszek@zevenos.com>  Wed, 24 Sep 2014 10:27:44 +0200
+
+neptune-installer (2.4.7) unstable; urgency=low
+
+  * Added "with super user rights" checkbox support to disable sudo for default user
+  * Added uefi support
+
+ -- Leszek Lesner <leszek@zevenos.com>  Wed, 17 Sep 2014 17:02:53 +0200
+
+neptune-installer (2.4.6) unstable; urgency=low
+
+  * Really remove quickinstall pdfs from installed skel
+
+ -- Leszek Lesner <leszek@zevenos.com>  Mon, 11 Aug 2014 14:01:57 +0200
+
+neptune-installer (2.4.5) unstable; urgency=low
+
+  * Remove neptune-advanced-installer after installation
+
+ -- Leszek Lesner <leszek@zevenos.com>  Fri, 08 Aug 2014 00:32:39 +0200
+
+neptune-installer (2.4.4) unstable; urgency=low
+
+  * Remove unnecessary live desktop icons also from skel
+
+ -- Leszek Lesner <leszek@zevenos.com>  Thu, 07 Aug 2014 10:47:21 +0200
+
+neptune-installer (2.4.3) unstable; urgency=low
+
+  * Add default user to group sudo
+  * Don't add default user group to sudoers
+
+ -- Leszek Lesner <leszek@zevenos.com>  Thu, 07 Aug 2014 09:53:01 +0200
+
+neptune-installer (2.4.2) unstable; urgency=low
+
+  * Fixed removal of snapshot-manager, persistent-creator and
+    neptune-installer after installation
+
+ -- Leszek Lesner <leszek@zevenos.com>  Sat, 02 Aug 2014 11:03:14 +0200
+
+neptune-installer (2.4.1) unstable; urgency=low
+
+  * Make window size fixed
+
+ -- Leszek Lesner <leszek@zevenos.com>  Mon, 09 Jun 2014 14:02:36 +0200
+
+neptune-installer (2.4.0) unstable; urgency=low
+
+  * Fixed btrfs default choice fstab
+
+ -- Leszek Lesner <leszek@zevenos.com>  Tue, 22 Apr 2014 16:02:24 +0200
+
+neptune-installer (2.3.9) unstable; urgency=low
+
+  * Added btrfs as new default formatting choice
+
+ -- Leszek Lesner <leszek@zevenos.com>  Tue, 22 Apr 2014 11:26:27 +0200
+
+neptune-installer (2.3.8) unstable; urgency=low
+
+  * Use blkid now for swap uuid detection also
+
+ -- Leszek Lesner <leszek@zevenos.com>  Mon, 07 Oct 2013 18:01:29 +0200
+
+neptune-installer (2.3.7) unstable; urgency=low
+
+  * Use blkid now for uuid detection
+
+ -- Leszek Lesner <leszek@zevenos.com>  Mon, 07 Oct 2013 17:01:48 +0200
+
+neptune-installer (2.3.6) unstable; urgency=low
+
+  * Fixed fallback detection if UUID failed for home or root
+
+ -- Leszek Lesner <leszek@zevenos.com>  Sun, 06 Oct 2013 10:43:51 +0200
+
+neptune-installer (2.3.5) unstable; urgency=low
+
+  * Fixed postinst script to copy neptune-installer.desktop
+
+ -- Leszek Lesner <leszek@zevenos.com>  Sun, 06 Oct 2013 10:15:10 +0200
+
+neptune-installer (2.3.4) unstable; urgency=low
+
+  * Fixed UUID detection
+
+ -- Leszek Lesner <leszek@zevenos.com>  Fri, 23 Aug 2013 18:12:26 +0200
+
+neptune-installer (2.3.3) unstable; urgency=low
+
+  * Added fallback option if blkid uuid get failed
+  * Changed get UUID code to use file instead of blkid
+  * Write directly to /tmp/neptune-installer.log
+
+ -- Leszek Lesner <leszek@zevenos.com>  Fri, 23 Aug 2013 16:39:02 +0200
+
+neptune-installer (2.3.2) unstable; urgency=low
+
+  * Bumped minimum harddrive space to 8 GB
+
+ -- Leszek Lesner <leszek@zevenos.com>  Wed, 24 Jul 2013 13:41:03 +0200
+
+neptune-installer (2.3.1) unstable; urgency=low
+
+  * Added new default icon for live installer and advanced installer
+  * Fixed create_fstab.sh script
+  * renamed desktop file to neptune-installer.desktop
+
+ -- Leszek Lesner <leszek@zevenos.com>  Sat, 20 Jul 2013 14:48:50 +0200
+
+neptune-installer (2.3.0) unstable; urgency=low
+
+  * Disabled option to format in f2fs (boot support still missing)
+  * Use uuids now for /etc/fstab creation
+  * Add user to sudo group by default
+  * synced alternate installer with normal installer
+  * clear /etc/environment after install
+
+ -- Leszek Lesner <leszek@zevenos.com>  Thu, 18 Jul 2013 13:48:00 +0200
+
+neptune-installer (2.2.9) unstable; urgency=low
+
+  * Added option to format in ext4 or f2fs
+
+ -- Leszek Lesner <leszek@zevenos.com>  Mon, 06 May 2013 12:17:35 +0200
+
+neptune-installer (2.2.8) unstable; urgency=low
+
+  * Checked format ext4 by default
+
+ -- Leszek Lesner <leszek@zevenos.com>  Tue, 02 Apr 2013 21:30:24 +0200
