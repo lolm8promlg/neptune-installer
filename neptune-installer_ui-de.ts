@@ -142,6 +142,11 @@ p, li { white-space: pre-wrap; }
         <translation>Benutzername:</translation>
     </message>
     <message>
+        <location filename="neptuneinstaller_ui.py" line="611"/>
+        <source>Full Name:</source>
+        <translation>Vollständiger Name:</translation>
+    </message>
+    <message>
         <location filename="neptuneinstaller_ui.py" line="560"/>
         <source>user password:</source>
         <translation>Passwort:</translation>
