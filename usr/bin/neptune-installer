@@ -103,6 +103,7 @@ lvmlvsize=`awk 'NR==43' /usr/share/neptune-installer/$language.messages`
 lvmlvformat=`awk 'NR==44' /usr/share/neptune-installer/$language.messages`
 lvmlvask=`awk 'NR==45' /usr/share/neptune-installer/$language.messages`
 lvmask=`awk 'NR==46' /usr/share/neptune-installer/$language.messages`
+cuserask=`awk 'NR==47' /usr/share/neptune-installer/$language.messages`
 
 # Functions
 lvm_create(){
@@ -165,6 +166,9 @@ if [ "$ROOTPWD" != "$ROOTPWD2" ]; then
 	exit 1;fi;
 
 ### Setup new user & password + groups ###
+$msgbox --inputbox "$cuserask" 0 0 2> tmp.cuser
+clear ;
+VOLLERNUTZERNAME=`cat tmp.cuser` ;
 $msgbox --inputbox "$userask" 0 0 2> tmp.user
 clear ;
 BENUTZER=`cat tmp.user` ;
@@ -432,7 +436,7 @@ cp /hdinstall/etc/group $TMPDIR/
 #chmod 666 $TMPDIR/sudoers ;
 
 # Change User in passwd file
-sed "s/Live user/$BENUTZER/g; s/user/$BENUTZER/g; s,/home/user,/home/$BENUTZER,g" $TMPDIR/passwd > /hdinstall/etc/passwd ;
+sed "s/Live user/$VOLLERNUTZERNAME/g; s/user/$BENUTZER/g; s,/home/user,/home/$BENUTZER,g" $TMPDIR/passwd > /hdinstall/etc/passwd ;
 
 # Change User in shadow file
 sed "s/user/$BENUTZER/g;" $TMPDIR/shadow > /hdinstall/etc/shadow ;
@@ -497,6 +501,7 @@ chmod 777 /hdinstall/home/$BENUTZER/Desktop/Neptune.desktop
 cp -f "/hdinstall/usr/share/sysvinit/inittab" "/hdinstall/etc/inittab" ; # use the right inittab
 #cp -f "/etc/skel/.gconf/apps/gksu/%gconf.xml" "/hdinstall/home/$BENUTZER/.gconf/apps/gksu/" ; # fix for gksu
 rm -r "/hdinstall/home/$BENUTZER/.kde/share/apps/kfileplaces" ;
+rm -r "/hdinstall/home/$BENUTZER/.config/akonadi" ;
 rm "/hdinstall/home/$BENUTZER/Desktop/persistent-creator.desktop" ;
 rm "/hdinstall/etc/skel/Desktop/persistent-creator.desktop" ;
 rm /hdinstall/etc/skel/Desktop/*.pdf ;

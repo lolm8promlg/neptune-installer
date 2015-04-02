@@ -290,32 +290,34 @@ EOF
 mkdir -p /boot/grub ;
 mkdir -p /hdinstall/boot/grub ;
 cp /usr/lib/grub/i386-pc/* /hdinstall/boot/grub ;
-if [ $GRUBMBR = 0 ]; then
-	if [ $efi_enabled == "yes" ]; then
-	  install_grub_efi
-	  mkdir -p /boot/efi ;
-	  mkdir -p /hdinstall/boot/efi ;
-	  efi_part=$(partitions list_efi_partitions)
-	  mount $efi_part /boot/efi ;
-	  mount -o bind /boot/efi /hdinstall/boot/efi ;
-	  chroot /hdinstall grub-install --recheck --no-floppy /dev/sda
-	else 
-	  grub-install --recheck --no-floppy --root-directory=/hdinstall /dev/sda
-	fi
-	
-else
-	clear ;
-	export TARGET2=`cat /tmp/neptune-installer/tmp.grubpart` ;
-	if [ $efi_enabled == "yes" ]; then
-	  install_grub_efi
-	  mkdir -p /boot/efi ;
-	  mkdir -p /hdinstall/boot/efi ;
-	  efi_part=$TARGET2
-	  mount $efi_part /boot/efi ;
-	  mount -o bind /boot/efi /hdinstall/boot/efi ;
-	  grub-install --recheck --no-floppy --root-directory=/hdinstall /dev/sda
+if [ ! -e /tmp/neptune-installer/tmp.grubskip ]; then
+	if [ $GRUBMBR = 0 ]; then
+		if [ $efi_enabled == "yes" ]; then
+		  install_grub_efi
+		  mkdir -p /boot/efi ;
+		  mkdir -p /hdinstall/boot/efi ;
+		  efi_part=$(partitions list_efi_partitions)
+		  mount $efi_part /boot/efi ;
+		  mount -o bind /boot/efi /hdinstall/boot/efi ;
+		  chroot /hdinstall grub-install --recheck --no-floppy /dev/sda
+		else 
+		  grub-install --recheck --no-floppy --root-directory=/hdinstall /dev/sda
+		fi
+		
 	else
-	  grub-install --recheck --no-floppy --root-directory=/hdinstall $TARGET2
+		clear ;
+		export TARGET2=`cat /tmp/neptune-installer/tmp.grubpart` ;
+		if [ $efi_enabled == "yes" ]; then
+		  install_grub_efi
+		  mkdir -p /boot/efi ;
+		  mkdir -p /hdinstall/boot/efi ;
+		  efi_part=$TARGET2
+		  mount $efi_part /boot/efi ;
+		  mount -o bind /boot/efi /hdinstall/boot/efi ;
+		  grub-install --recheck --no-floppy --root-directory=/hdinstall /dev/sda
+		else
+		  grub-install --recheck --no-floppy --root-directory=/hdinstall $TARGET2
+		fi
 	fi
 fi
 
@@ -484,6 +486,7 @@ cp -f "/hdinstall/usr/share/sysvinit/inittab" "/hdinstall/etc/inittab" ; # use t
 #cp -f "/etc/skel/.gconf/apps/gksu/%gconf.xml" "/hdinstall/home/$BENUTZER/.gconf/apps/gksu/" ; # fix for gksu
 cp -f "/tmp/neptune-installer.log" "/hdinstall/var/log/neptune-installer.log" ; # copy installation log
 rm -r "/hdinstall/home/$BENUTZER/.kde/share/apps/kfileplaces" ;
+rm -r "/hdinstall/home/$BENUTZER/.config/akonadi" ;
 rm "/hdinstall/home/$BENUTZER/Desktop/persistent-creator.desktop" ;
 rm "/hdinstall/etc/skel/Desktop/persistent-creator.desktop" ;
 rm /hdinstall/etc/skel/Desktop/*.pdf ;

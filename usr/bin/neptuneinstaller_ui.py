@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Tue Mar 31 16:20:21 2015
+# Created: Thu Apr  2 13:16:51 2015
 #      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -156,7 +156,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addLayout(self.verticalLayout_2)
         self.verticalLayout_7.addLayout(self.horizontalLayout_3)
         self.layoutWidget2 = QtGui.QWidget(self.usertab)
-        self.layoutWidget2.setGeometry(QtCore.QRect(111, 110, 451, 151))
+        self.layoutWidget2.setGeometry(QtCore.QRect(111, 117, 451, 141))
         self.layoutWidget2.setObjectName(_fromUtf8("layoutWidget2"))
         self.verticalLayout_6 = QtGui.QVBoxLayout(self.layoutWidget2)
         self.verticalLayout_6.setMargin(0)
