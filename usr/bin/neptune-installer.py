@@ -231,12 +231,12 @@ class MyForm(QtGui.QMainWindow):
         target = self.ui.targetbox.currentText()
         grubpart = self.ui.grubbox.currentText()
         homepart = self.ui.homebox.currentText()
-        pwd = self.ui.rootpw1.text()
-        cuser = self.ui.cusername.text()
-        user = self.ui.username.text()
-        userpwd = self.ui.userpw1.text()
+        pwd = self.ui.rootpw1.text().toUtf8()
+        cuser = self.ui.cusername.text().toUtf8()
+        user = self.ui.username.text().toUtf8()
+        userpwd = self.ui.userpw1.text().toUtf8()
         if target.length() != 0:
-            print "Targetpartition: " + target + "\nGrubpartition: " + grubpart + "\nHomepartition: " + homepart + "\nRootpw: " + pwd + "\nUsername: " + user + "\nUserpw: " + userpwd
+            print "Targetpartition: " + str(target) + "\nGrubpartition: " + str(grubpart) + "\nHomepartition: " + str(homepart) + "\nRootpw: " + str(pwd) + "\nUsername: " + str(user) + "\nUserpw: " + str(userpwd)
             popen("mkdir -p /tmp/neptune-installer/")
             popen("echo '" + str(pwd) + "' > /tmp/neptune-installer/tmp.pwd") 
             popen("echo '" + str(user) +"' > /tmp/neptune-installer/tmp.user")
