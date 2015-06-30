@@ -630,7 +630,7 @@ class Ui_MainWindow(object):
 "<table border=\"0\" style=\"-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;\">\n"
 "<tr>\n"
 "<td style=\"border: none;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">You need at least 1 partition with 5 GB free disk space formatted in a linux filesystem (ext2/3/4/xfs/jfs).</p></td></tr></table></body></html>", None))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">You need at least 1 partition with 8 GB free disk space formatted in a linux filesystem (ext2/3/4/xfs/jfs).</p></td></tr></table></body></html>", None))
         self.partedbtn.setText(_translate("MainWindow", "Start manual partitioning", None))
         self.refreshBtn.setText(_translate("MainWindow", "Refresh", None))
         self.label_7.setText(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
