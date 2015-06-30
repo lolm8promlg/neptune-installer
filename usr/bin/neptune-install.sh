@@ -173,7 +173,7 @@ if [ -f /tmp/neptune-installer-formatRoot.tmp ]; then
     exit 1
     fi
   else
-    mkfs.btrfs -L "NEPTUNE" $TARGET
+    mkfs.btrfs -f -L "NEPTUNE" $TARGET
     if [ ! "$?" == 0 ]; then
       echo "Formatting failed!"
       exit 1
