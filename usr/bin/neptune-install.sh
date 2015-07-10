@@ -119,6 +119,7 @@ else
   cp /usr/lib/kde4/libexec/kdesu-distrib/kdesu /usr/bin/kdesu ;
   update-alternatives --set kdesu /usr/lib/kde4/libexec/kdesu-distrib/kdesu ;
   su user -c "kwriteconfig --file kdesurc --group super-user-command --key super-user-command su"
+  cp /home/user/.kde/share/config/kdesurc /usr/share/neptune-base/profiles/kde-profile/share/config/kdesurc
 fi
 # adduser user scanner ; # should fix scanner problems after install
 # adduser fuse ; # important for mount encrypted filesystems
