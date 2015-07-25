@@ -403,6 +403,8 @@ if [ -f /hdinstall/etc/kde4/kdm/kdmrc ]; then
   sed -i -r -e "s/^#?AutoLoginEnable=.*\$/AutoLoginEnable=false/" \
 	    -e "s/^#?AutoLoginUser=.*\$/AutoLoginUser=/" \
 	    -e "s/^#?AutoReLogin=.*\$/AutoReLogin=false/" \
+	    -e "s/^#?PreselectUser=.*\$/PreselectUser=Default/" \
+	    -e "s/^#?DefaultUser=.*\$/DefaultUser=$BENUTZER/" \
         /hdinstall/etc/kde4/kdm/kdmrc
 fi
 
