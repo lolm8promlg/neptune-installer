@@ -496,6 +496,8 @@ rm /hdinstall/etc/skel/Desktop/*.pdf ;
 rm "/hdinstall/etc/skel/Desktop/neptune-installer.desktop" ;
 rm "/hdinstall/etc/environment" ;
 touch "/hdinstall/etc/environment" ;
+cd "/hdinstall/home/$BENUTZER"; ln -sf ".config/fontconfig/fonts.conf" "./.fonts.conf" ;
+cd ;
 echo "" > /hdinstall/etc/mtab ;
 #cp -f "/etc/skel/.mozilla/firefox/q2vijr9i.default/chrome/userChrome.css" "/hdinstall/home/$BENUTZER/.mozilla/firefox/q2vijr9i.default/chrome/" ;
 
