@@ -1,11 +1,10 @@
 [Desktop Entry]
 Version=1.0
 Encoding=UTF-8
-Name=Install Neptune
-Comment=Install Neptune
+Name=Install Xeneloid
+Comment=Install Xeneloid
 Exec=/usr/bin/neptune-installer.py
 Icon=live-installer
 Terminal=false
 Type=Application
 Categories=Application;
-GenericName[de_DE]=Installiere Neptune
