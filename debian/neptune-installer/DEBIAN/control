@@ -1,10 +1,10 @@
-Package: neptune-installer
-Version: 2.5.0
+Package: xeneloid-install
+Version: 1.1.0
 Architecture: all
-Maintainer: Leszek Lesner <leszek@zevenos.com>
+Maintainer: Leszek Lesner <leszek@zevenos.com> Egor Mikhailov <portugel20@mail.ru>
 Installed-Size: 760
 Depends: gparted, e2fsprogs, debootstrap, rsync, util-linux, language-selector, dialog, parted, f2fs-tools, file, btrfs-tools
 Section: kde
 Priority: optional
-Description: Neptune Installer
- This package contains the neptune installer that will install the system to harddrive.
+Description: Xeneloid Installer
+ This package contains the xeneloid(based on Neptune OS installer) installer that will install the system to harddrive.
